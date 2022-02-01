@@ -1,27 +1,22 @@
 package com.technicaltest.instrumentsim;
 
+import com.technicaltest.instrumentsim.instrument.Instrument;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-
-import java.util.Timer;
 
 public class Sampler extends Thread {
 
     private static Instrument thread;
 
-    //private static int readingVal;
-    private static boolean updatedResult;
-
     private static boolean threadActive;
     private static boolean pollReadings;
 
-    private volatile static IntegerProperty readingVal;
+    private static IntegerProperty readingVal;
 
     Sampler(Instrument _thread) {
         thread = _thread;
         threadActive = true;
         pollReadings = false;
-        updatedResult = false;
         readingVal = new SimpleIntegerProperty(0);
     }
 
@@ -37,19 +32,6 @@ public class Sampler extends Thread {
         return readingVal;
     }
 
-    public int getReadingVal() {
-        updatedResult = false;
-        return readingVal.getValue();
-    }
-
-    public boolean getUpdatedResult() {
-        return updatedResult;
-    }
-
-    public void stopThread() {
-        threadActive = false;
-    }
-
     @Override
     public void run() {
         System.out.println("Sampler Thread Start");
@@ -57,12 +39,18 @@ public class Sampler extends Thread {
             try {
                 sleep(0);
                 while (pollReadings) {
-                    System.out.println("Getting a reading");
                     readingVal.setValue(thread.getReading());
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static void stopThread()
+    {
+        System.out.println("Stopping Sampler Thread");
+        pollReadings = false;
+        threadActive = false;
     }
 }

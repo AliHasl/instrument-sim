@@ -1,14 +1,17 @@
-package com.technicaltest.instrumentsim;
+package com.technicaltest.instrumentsim.instrument;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Instrument extends Thread {
+public class Instrument extends Thread implements InstrumentInterface {
 
-    static boolean running = true;
-    private static  AtomicInteger randomNumber;
+    private static boolean running;
+    private static boolean initialReading;
+    private static AtomicInteger randomNumber;
 
-    Instrument()
+    public Instrument()
     {
+        running = true;
+        initialReading = true;
         randomNumber = new AtomicInteger();
     }
 
@@ -17,20 +20,18 @@ public class Instrument extends Thread {
         System.out.println("Running counter thread");
 
         while (running) {
-            randomNumber.set((int)(Math.random() * 1000));
+            randomNumber.set((int) (Math.random() * 1000));
         }
     }
-
-    private static boolean initialReading = true;
 
     public int getReading() throws InterruptedException {
 
         if (initialReading) {
             initialReading = false;
-            return  randomNumber.get();
+            return randomNumber.get();
         }
 
-        long waitTime = (int) (Math.random() * 5) * 1000;
+        long waitTime = (int) (Math.random() * 4) * 1000;
         try {
             Thread.sleep(waitTime);
         } catch (InterruptedException e) {
@@ -40,7 +41,8 @@ public class Instrument extends Thread {
         return randomNumber.get();
     }
 
-    public void stopThread() {
+    public static void stopThread() {
+        System.out.println("Stopping Instrument thread.");
         running = false;
     }
 }
